@@ -70,30 +70,48 @@ export class GrafanaApiClient implements GrafanaApi {
   }
 
   async dashboardsByTag(tag: string): Promise<Dashboard[]> {
-    const response = await this.fetch<Dashboard[]>(`/api/search?type=dash-db&tag=${tag}`);
+    const dashboards: Dashboard[] = [];
+    const finalTags: string[] = tag.split(',');
+    await Promise.all(
+      finalTags.map(async t => {
+        const response = await this.fetch<Dashboard[]>(
+          `/api/search?type=dash-db&tag=${t}`,
+        );
+        dashboards.push(
+          ...response.map(dashboard => ({
+            title: dashboard.title,
+            url: this.domain + dashboard.url,
+            folderTitle: dashboard.folderTitle,
+            folderUrl: this.domain + dashboard.folderUrl,
+          })),
+        );
+      }),
+    );
 
-    return response.map(dashboard => (
-      {
-        title: dashboard.title,
-        url: this.domain + dashboard.url,
-        folderTitle: dashboard.folderTitle,
-        folderUrl: this.domain + dashboard.folderUrl,
-      }
-    ));
+    return dashboards;
   }
 
   async alertsByDashboardTag(tag: string): Promise<Alert[]> {
-    const response = await this.fetch<Alert[]>(`/api/alerts?dashboardTag=${tag}`);
+    const alerts: Alert[] = [];
+    const finalTags: string[] = tag.split(',');
+    await Promise.all(
+      finalTags.map(async t => {
+        const response = await this.fetch<Alert[]>(
+          `/api/alerts?dashboardTag=${t}`,
+        );
+        alerts.push(
+          ...response.map(alert => ({
+            id: alert.id,
+            panelId: alert.panelId,
+            name: alert.name,
+            state: alert.state,
+            url: this.domain + alert.url,
+          })),
+        );
+      }),
+    );
 
-    return response.map(alert => (
-      {
-        id: alert.id,
-        panelId: alert.panelId,
-        name: alert.name,
-        state: alert.state,
-        url: this.domain + alert.url,
-      }
-    ));
+    return alerts;
   }
 
   private async apiUrl() {
