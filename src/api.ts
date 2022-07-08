@@ -79,6 +79,7 @@ export class GrafanaApiClient implements GrafanaApi {
         );
         dashboards.push(
           ...response.map(dashboard => ({
+            id: dashboard.id,
             title: dashboard.title,
             url: this.domain + dashboard.url,
             folderTitle: dashboard.folderTitle,
@@ -88,10 +89,10 @@ export class GrafanaApiClient implements GrafanaApi {
       }),
     );
 
-    const dashboardNames = dashboards.map(d => d.title);
+    const dashboardIds = dashboards.map(d => d.id);
     return dashboards.filter(
-      // Checks if the dashboardTitle is present more than once, so the `index + 1` is required to avoid finding itself
-      ({ title }, index) => !dashboardNames.includes(title, index + 1),
+      // Checks if the dashboardId is present more than once, so the `index + 1` is required to avoid finding itself
+      ({ id }, index) => !dashboardIds.includes(id, index + 1),
     );
   }
 
@@ -115,10 +116,10 @@ export class GrafanaApiClient implements GrafanaApi {
       }),
     );
 
-    const alertNames = alerts.map(a => a.name);
+    const alertIds = alerts.map(a => a.id);
     return alerts.filter(
-      // Checks if the alertName is present more than once, so the `index + 1` is required to avoid finding itself
-      ({ name }, index) => !alertNames.includes(name, index + 1),
+      // Checks if the alertId is present more than once, so the `index + 1` is required to avoid finding itself
+      ({ id }, index) => !alertIds.includes(id, index + 1),
     );
   }
 
