@@ -88,7 +88,11 @@ export class GrafanaApiClient implements GrafanaApi {
       }),
     );
 
-    return dashboards;
+    const dashboardNames = dashboards.map(d => d.title);
+    return dashboards.filter(
+      // Checks if the dashboardTitle is present more than once, so the `index + 1` is required to avoid finding itself
+      ({ title }, index) => !dashboardNames.includes(title, index + 1),
+    );
   }
 
   async alertsByDashboardTag(tag: string): Promise<Alert[]> {
@@ -111,7 +115,11 @@ export class GrafanaApiClient implements GrafanaApi {
       }),
     );
 
-    return alerts;
+    const alertNames = alerts.map(a => a.name);
+    return alerts.filter(
+      // Checks if the alertName is present more than once, so the `index + 1` is required to avoid finding itself
+      ({ name }, index) => !alertNames.includes(name, index + 1),
+    );
   }
 
   private async apiUrl() {
